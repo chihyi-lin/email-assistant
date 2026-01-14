@@ -1,0 +1,11 @@
+# Google Gmail API
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+
+# Environment Variables & Security
+python-dotenv
+
+langgraph
+groq
+langchain_groq
