@@ -10,8 +10,10 @@ class EmailClassification(BaseModel):
     
 # The State of the Graph
 class EmailAgentState(BaseModel):
-    email_text: str
+    sender_name: str
     sender_email: str
+    email_date: str
+    email_text: str
     email_id: str
 
     category: Optional[EmailCategory] = None
