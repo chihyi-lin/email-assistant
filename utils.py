@@ -45,23 +45,36 @@ def clean_html(raw_html):
     return s.get_data()
 
 def get_full_email_body(message_payload):
-    """Recursively finds and decodes the plain text body from the Gmail payload."""
-    # 1. Check if the body is directly in the payload (simple emails)
-    body = message_payload.get('body', {}).get('data')
-    # 2. If not, look through 'parts' (multi-part emails like newsletters)
-    if not body and 'parts' in message_payload:
-        for part in message_payload['parts']:
+    """Recursively finds and decodes the cleanest version of the email body."""
+    parts = message_payload.get('parts', [])
+    body_text = ""
+
+    # 1. PRIORITY: Look for Plain Text
+    if not parts: # Simple email with no parts
+        body_text = message_payload.get('body', {}).get('data', '')
+    else:
+        # Search for text/plain mimeType first
+        for part in parts:
             if part['mimeType'] == 'text/plain':
-                body = part.get('body', {}).get('data')
+                body_text = part.get('body', {}).get('data', '')
                 break
-            # If it's another nested multipart, recurse
-            elif 'parts' in part:
-                body = get_full_email_body(part)
-                if body: break
-    if body:
-        # Decode the base64url encoded string
-        return base64.urlsafe_b64decode(body).decode('utf-8')
-    return ""
+            elif part['mimeType'] == 'text/html' and not body_text:
+                # If we haven't found plain text yet, save the HTML data as a backup
+                body_text = part.get('body', {}).get('data', '')
+            elif 'parts' in part: # Recurse into nested parts
+                body_text = get_full_email_body(part)
+
+    if not body_text:
+        return ""
+
+    # 2. Decode from Base64
+    decoded_body = base64.urlsafe_b64decode(body_text).decode('utf-8', errors='replace')
+
+    # 3. Clean up: If it looks like HTML, strip the tags
+    if "<div" in decoded_body.lower() or "<html" in decoded_body.lower():
+        decoded_body = clean_html(decoded_body)
+
+    return decoded_body.strip()
 
 
 def parse_gmail_message(msg_data):
@@ -77,6 +90,7 @@ def parse_gmail_message(msg_data):
     raw_date = next((h['value'] for h in headers if h['name'] == 'Date'), "")
 
     # 2. Parse Sender & Date
+    # TODO: --issue: the parsed date is 1 hr earlier-- 
     name, addr = email.utils.parseaddr(raw_from)
     try:
         parsed_date = email.utils.parsedate_to_datetime(raw_date)

@@ -36,7 +36,7 @@ def get_gmail_service():
 
 
 def categorization(state: EmailAgentState, llm) -> dict:
-
+    """Call LLM to categorize emails. Returns category."""
     structured_llm = llm.with_structured_output(EmailClassification)
     email_content = state.email_text
 
@@ -45,23 +45,38 @@ def categorization(state: EmailAgentState, llm) -> dict:
             ("human",  f"Classify this email: {email_content}")
     ]
     result = structured_llm.invoke(messages)
-    print(f'DEBUG: \n{result}')
-    return {
-        "category": result.category
-    }
+    print({result})
+    return {"category": result.category}
+
 
 def router(state: EmailAgentState):
     """ Determine next node based on categorization. """
     category = state.category
-    if category == "reply":
-        return "draft_writer"
     
-    elif category == "newsletter":
+    if category == "newsletter":
         return "summarizer"
 
     # Fallback for notification, social, spam or others
-    # TODO: for notification, just shows the subject to the user
+    # TODO: for notification, social, spam or others just shows the subject to the user
     return "archiver"
+
+
+def summarizer(state: EmailAgentState, llm) -> dict:
+    """Call LLM to summarize an email. Returns summary."""
+
+    email_content = state.email_text
+
+    messages = [
+            ("system", "You are a tech expert. Summarize the content using bullet points. Focus on key technical takeaways and actionable insights. Max 8 sentences."),
+            ("human",  f"Content to summarize: {email_content}")
+    ]
+    result = llm.invoke(messages)
+    summary_text = result.content
+    print(f'Generated summary for tech newsletter: {summary_text}')
+    return {"summarization": summary_text}
+
+def archiver(state: EmailAgentState):
+    pass
 
 def main():
     print("Accessing email data...")
@@ -71,27 +86,25 @@ def main():
     # 1. Setup LLM
     llm = ChatGroq(model="llama-3.1-8b-instant")
 
+    # TODO: make function/node name more clear?
     # TODO: write functions and add "draft_writer", "summarizer", "archiver" to nodes
+    # TODO: process more than 1 unread emails
     workflow = StateGraph(EmailAgentState)
-
     workflow.add_node("categorize", partial(categorization, llm=llm))
-    
+    workflow.add_node("summarize", partial(summarizer, llm=llm))
+    workflow.add_node("archive", archiver)
     workflow.add_edge(START, "categorize")
-
-    # workflow.add_conditional_edges("categorize", 
-    #                                router,
-    #                                {"draft_writer": "draft_writer_node",
-    #                                 "summarizer": "summarizer_node",
-    #                                 "archiver": "archiver_node"})
-    # workflow.add_edge("draft_writer_node", END)
-    # workflow.add_edge("summarizer_node", END)
-    # workflow.add_edge("archiver_node", END)
-    workflow.add_edge("categorize", END)
-    
+    workflow.add_conditional_edges("categorize", 
+                                   router,
+                                   {"summarizer": "summarize",
+                                    "archiver": "archive"})
+    workflow.add_edge("summarize", END)
+    workflow.add_edge("archive", END)
     app = workflow.compile()
     print(f'Compiling graph...')
     print("--- Starting Graph Execution ---")
     final_state = app.invoke(parsed_data)
+    # TODO: Printout final EmailClassification
     print("--- Graph Finished ---")    
 
 if __name__ == "__main__":
