@@ -6,6 +6,7 @@ google-auth-oauthlib
 # Environment Variables & Security
 python-dotenv
 
+langchain-core
 langgraph
-groq
-langchain_groq
+langchain-groq
+colorama
