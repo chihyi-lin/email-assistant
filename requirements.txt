@@ -10,3 +10,4 @@ langchain-core
 langgraph
 langchain-groq
 colorama
+beautifulsoup4

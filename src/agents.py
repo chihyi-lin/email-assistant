@@ -20,7 +20,7 @@ class Agents():
         ])
         self.summarize_email = summarize_email_prompt | llm.with_structured_output(SummarizationOutput)
 
-        # summarize_email_chain
+        # draft_response_chain
         draft_response_prompt = ChatPromptTemplate.from_messages([
             ("system", (
                 "You are an email assistant specializing in professional correspondence. "
