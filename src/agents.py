@@ -4,7 +4,7 @@ from .structured_outputs import *
 
 class Agents():
     def __init__(self):
-        llm = ChatGroq(model="llama-3.1-8b-instant")
+        llm = ChatGroq(model="llama-3.3-70b-versatile")    # "llama-3.3-70b-versatile", "llama-3.1-8b-instant"
 
         # categorize email chain
         categorize_email_prompt = ChatPromptTemplate.from_messages([
@@ -15,7 +15,7 @@ class Agents():
 
         # summarize_email_chain
         summarize_email_prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a tech expert. Summarize the content using bullet points. Focus on key technical takeaways and actionable insights. Max 8 sentences."),
+            ("system", "You are a tech expert. Provide a concise summary of the following email."),
             ("human",  "Content to summarize:\n {email_content}")
         ])
         self.summarize_email = summarize_email_prompt | llm.with_structured_output(SummarizationOutput)

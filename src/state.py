@@ -19,3 +19,4 @@ class GraphState(TypedDict):
     drafted_subject: str
     drafted_body: str
     summarization: str
+    error: str  # log what went wrong during LLM calls

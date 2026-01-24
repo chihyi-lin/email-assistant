@@ -10,7 +10,7 @@ class EmailClassificationOutput(BaseModel):
 
 class SummarizationOutput(BaseModel):
     summarization: str = Field(
-        description="The key points of the email."
+        description="Summarization of the email."
     )
 
 class ResponseOutput(BaseModel):
