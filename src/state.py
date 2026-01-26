@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import List, TypedDict, Optional
+from typing import List, TypedDict, Optional, Annotated
+import operator
 
 class Email(BaseModel):
     id: str = Field(..., description="Unique id of the email")
@@ -19,4 +20,5 @@ class GraphState(TypedDict):
     drafted_subject: str
     drafted_body: str
     summarization: str
-    error: str  # log what went wrong during LLM calls
+    error: str      # log what went wrong during LLM calls
+    logs: Annotated[List[str], operator.add]    # accumulated UI logs
