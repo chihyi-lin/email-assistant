@@ -8,7 +8,7 @@ class Agents():
 
         # categorize email chain
         categorize_email_prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are an expert email classifier."),
+            ("system", "You are an expert email classifier. Classify an email into one of the following categories: `response_required`, `newsletter`, `notification`, `social`, `spam`, or `others`. If an email requires a response, classify it as `response_required`."),
             ("human",  "Classify this email: {email_content}")
         ])
         self.categorize_email = categorize_email_prompt | llm.with_structured_output(EmailClassificationOutput)

@@ -15,5 +15,4 @@ initial_state = {"emails": [],
 for output in graph_compiler.compiled_graph.stream(initial_state):
     # output is a dict: {"node_name": {"updated_state_keys": "values"}}
     for node_name, state_update in output.items():
-        print(f'\n--- Finished Node: {node_name}, state_update:\n')
-        print(state_update)
+        print(f'--- Finished Node: {node_name}\n')

@@ -1,7 +1,7 @@
 from typing import Literal
 from pydantic import BaseModel, Field
 
-EmailCategory = Literal["reply", "newsletter", "notification", "social", "spam", "others"]
+EmailCategory = Literal["response_required", "newsletter", "notification", "social", "spam", "others"]
 
 class EmailClassificationOutput(BaseModel):
     category: EmailCategory = Field(

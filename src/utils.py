@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime
+from email.message import EmailMessage
 
 
 # --- GMAIL SETUP ---
@@ -189,3 +190,33 @@ class GmailTool:
     
     def _should_skip_email(self, email_info):
         return os.environ['MY_EMAIL'] in email_info['sender']
+
+    def create_draft(self, drafted_body, drafted_subject, email):
+        """
+        Creates a simple email draft and save it to Gmail.
+        """
+        try:
+            # 1. Create the MIME message
+            message = EmailMessage()
+            message.set_content(drafted_body)
+            message["Subject"] = drafted_subject
+            message["to"] = email.sender
+
+            # 2. Crucial for Threading: Link the reply to the original
+            message["In-Reply-To"] = email.messageId
+            message["References"] = email.messageId
+
+            # 3. Encode for Gmail API
+            encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+            create_message = {
+                        "message": {
+                            "raw": encoded_message,
+                            "threadId": email.threadId # Keeps it in the same thread
+                        }
+                    }
+            # 4. Execute the API call
+            draft = self.service.users().drafts().create(userId="me", body=create_message).execute()
+            return draft
+        except Exception as e:
+            print(f"Failed to create draft: {e}")
+            raise e
