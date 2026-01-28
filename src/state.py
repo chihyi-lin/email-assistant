@@ -21,4 +21,5 @@ class GraphState(TypedDict):
     drafted_body: str
     summarization: str
     error: str      # log what went wrong during LLM calls
+    current_log: str    # UI log for each state
     logs: Annotated[List[str], operator.add]    # accumulated UI logs

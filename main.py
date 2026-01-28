@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 from src.graph import GraphCompiler
 from fastapi.middleware.cors import CORSMiddleware
 from langserve import add_routes
-from fastapi import FastAPI, BackgroundTasks
-from src.state import GraphState
+from fastapi import FastAPI
+from langchain_core.runnables import RunnableLambda
 
 load_dotenv()
 
@@ -23,14 +23,26 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-def get_runnable():
-    graph_compiler = GraphCompiler()
-    return graph_compiler.compiled_graph
+async def process_emails_streaming():
+    """
+    Yields state updates in real-time.
+    """
+    try:
+        for state in GraphCompiler().run():
+            for node_name, state in state.items():
+                yield {
+                    "current_log": state.get('current_log', ""),
+                    "error": state.get("error", ""),
+                }
+    except Exception as e:
+        yield {
+            "error": f"Error: {str(e)}"
+        }
 
-runnable = get_runnable()
+email_agent_streaming = RunnableLambda(process_emails_streaming)
 
-# Create the Fast API route to invoke the runnable
-add_routes(app, runnable, path="/email", input_type=dict)
+# Create the Fast API route with streaming support
+add_routes(app, email_agent_streaming, path="/email", enable_feedback_endpoint=True, playground_type="default")
 
 def main():
     # Start the API
@@ -38,30 +50,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# initial_state = {"emails": [],
-#                 "current_email": None,
-#                 "category": "",
-#                 "drafted_subject": "",
-#                 "drafted_body": "",
-#                 "summarization": "",
-#                 "error": ""}
-
-# @app.get("/status")
-# def get_status():
-#     return {"status": "online", "agent": "Gmail Assistant"}
-
-# @app.post("/run-agent")
-# async def run_agent(background_tasks: BackgroundTasks):
-#     """
-#     Trigger the email agent and returns a summary of all actions taken.
-#     """
-#     background_tasks.add_task(process_emails)
-#     return {"message": "Agent started processing emails in the background."}
-
-# def process_emails():
-#     for output in graph_compiler.compiled_graph.stream(initial_state):
-#         # output is a dict: {"node_name": {"updated_state_keys": "values"}}
-#         for node_name, state_update in output.items():
-#             print(f'--- Finished Node: {node_name}\n')

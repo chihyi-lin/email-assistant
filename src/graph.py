@@ -35,11 +35,14 @@ class GraphCompiler():
         
         self.compiled_graph = workflow.compile()
 
-    def invoke(self):
+    def run(self):
         initial_state = {"emails": [],
                         "current_email": None,
                         "category": "",
                         "drafted_subject": "",
                         "drafted_body": "",
                         "summarization": ""}
-        return self.compiled_graph.invoke(initial_state)
+        
+        # Stream the workflow execution
+        for state in self.compiled_graph.stream(initial_state):
+            yield state

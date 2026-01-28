@@ -9,13 +9,13 @@ class Nodes():
 
     def load_new_emails(self, state: GraphState) -> GraphState:
         print(Fore.BLUE + "Loading new emails with Gmail API...\n" + Style.RESET_ALL)
-        msg = f"Loading new emails with Gmail API...\n"
+        msg = f"Loading new emails with Gmail API..."
         unanswered_emails = self.gmail_tool.fetch_unanswered_emails(2)  # change the number of fetched emails here
         emails = []
         for email_dict in unanswered_emails:
             emails.append(Email(**email_dict))
         return {"emails": emails,
-                "logs": [msg]}
+                "current_log": msg}
 
     def route_check_new_emails_exist(self, state: GraphState) -> str:
         if state["emails"]:
@@ -27,9 +27,9 @@ class Nodes():
     def add_current_email(self, state: GraphState) -> GraphState:
         current_email = state["emails"][-1]
         print(Fore.BLUE + f"Current email: {current_email}\n" + Style.RESET_ALL)
-        msg = f"Current email: \nID: {current_email.id}\nSender: {current_email.sender}\nSubject: {current_email.subject}\n"
+        msg = f"Current email: ID: {current_email.id}, Sender: {current_email.sender}, Subject: {current_email.subject}"
         return {"current_email": current_email,
-                "logs": [msg]}
+                "current_log": msg}
 
     def categorize_email(self, state: GraphState) -> GraphState:
         """Categorize an email using the agent."""
@@ -39,9 +39,9 @@ class Nodes():
         try:       
             result = self.agent.categorize_email.invoke({"email_content": email_content})
             print(Fore.GREEN + f"Category: {result.category}\n" + Style.RESET_ALL)
-            msg = f"Category: {result.category}\n"
+            msg = f"Category: {result.category}"
             return {"category": result.category,
-                    "logs": [msg]}
+                    "current_log": msg}
         except Exception as e:
             print(f"{Fore.RED}Error in categorization: {e}{Style.RESET_ALL}")
             # Return a marker so the graph knows this one failed
@@ -67,9 +67,9 @@ class Nodes():
         try:
             result = self.agent.summarize_email.invoke({"email_content": email_content})
             print(Fore.GREEN + f"Summary: \n{result.summarization}\n "+ Style.RESET_ALL)
-            msg = f"Summary: \n{result.summarization}\n"
+            msg = f"Summary: {result.summarization}"
             return {"summarization": result.summarization,
-                    "logs": [msg]}
+                    "current_log": msg}
         except Exception as e:
             print(f"{Fore.RED}Error in summarization: {e}{Style.RESET_ALL}")
             return {"summarization": "Error occurs", "error": str(e)}   
@@ -82,7 +82,7 @@ class Nodes():
         try:
             result = self.agent.draft_response.invoke({"email_content": email_content})
             print(Fore.GREEN + f"Drafted Subject: \n{result.subject}\n" + f"Drafted Body: \n{result.body}\n" + Style.RESET_ALL)
-            msg += f"Drafted Subject: \n{result.subject}\n" + f"Drafted Body: \n{result.body}\n"
+            msg += f"Drafted Subject: {result.subject}, Drafted Body: {result.body}\n"
             # save draft to Gmail
             temp_state = state.copy()
             temp_state["drafted_subject"] = result.subject
@@ -92,7 +92,7 @@ class Nodes():
             msg += f"Draft saved to Gmail successfully\n"
             return {"drafted_subject": result.subject,
                     "drafted_body": result.body,
-                    "logs": [msg]}
+                    "current_log": msg}
         except Exception as e:
             print(f"{Fore.RED}Error in drafting: {e}{Style.RESET_ALL}")
             return {"drafted_subject": "Error occurs",
@@ -107,16 +107,15 @@ class Nodes():
         self.gmail_tool.create_draft(drafted_body, drafted_subject, email)
 
     def archive_email(self, state: GraphState) -> GraphState:
-        # TODO: actual archiving in Gmail api
         email_subject = state["current_email"].subject
-        print(Fore.BLUE + "Archiving the email...\n" + Style.RESET_ALL)
+        print(Fore.BLUE + "Ignore the email\n" + Style.RESET_ALL)
         msg = f"Ignore the email"
-        return {"logs": [msg]}
+        return {"current_log": msg}
     
     def pop_email(self, state: GraphState) -> GraphState:
         """Remove the processed email from email lists."""
         state["emails"].pop()
         print(Fore.BLUE + "Processed email has been removed\n" + Style.RESET_ALL)
-        msg = f"Processed email has been removed\n"
+        msg = f"Processed email has been removed"
         return {"emails": state['emails'],
-                "logs": [msg]}
+                "current_log": msg}
