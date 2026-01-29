@@ -3,6 +3,7 @@
 An intelligent personal email assistant that automatically fetch new emails, classifies emails, drafts responses, and summarizes newsletters using LangGraph workflows and LLM capabilities.
 
 ## Demo
+https://github.com/user-attachments/assets/fc679cf5-a551-40e4-bbff-666361d26170
 ## Features
 - 🔍 **Automatic Email Classification**: Categorizes emails into "response_required", "newsletter", "notification", "social", "spam", "others"
 - ✍️ **AI-Powered Response Drafting**: Generates professional email responses and saves them as Gmail drafts
