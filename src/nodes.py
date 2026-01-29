@@ -10,7 +10,7 @@ class Nodes():
     def load_new_emails(self, state: GraphState) -> GraphState:
         print(Fore.BLUE + "Loading new emails with Gmail API...\n" + Style.RESET_ALL)
         msg = f"Loading new emails with Gmail API..."
-        unanswered_emails = self.gmail_tool.fetch_unanswered_emails(2)  # change the number of fetched emails here
+        unanswered_emails = self.gmail_tool.fetch_unanswered_emails(50)  # change the number of fetched emails here
         emails = []
         for email_dict in unanswered_emails:
             emails.append(Email(**email_dict))

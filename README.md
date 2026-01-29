@@ -84,7 +84,7 @@ MY_EMAIL="your gmail"
    - Go to "APIs & Services" > "Credentials"
    - Click "Create Credentials" > "OAuth client ID"
    - Application type: "Desktop app"
-   - Name it "Email Assistant"
+   - Name it "Gmail Assistant"
    - Download the credentials
 
 5. **Save credentials**:
@@ -98,7 +98,13 @@ python main.py
 ```
 The server will start at: `http://0.0.0.0:8000/`
 
-2. Open your browser and navigate to LangServe Playground: `http://0.0.0.0:8000/email/playground`. Click "Try Out" and the workflow will start automatically.
+2. Open your browser and navigate to LangServe Playground: `http://0.0.0.0:8000/email/playground`. Click "Start" and the workflow will start automatically.
+
+-  Authenticate Google OAuth tokens when running the application for the first time:
+   1. A windonw will pop up asking you to log in to your Google Account
+   2. It shows "Google hasn't verified this app" -> click "continue"
+   3. It shows "Gmail Assistant wants access to your Google Account" -> click "continue"
+   4. `"token.json"` will be automatically saved in the root directory for future sessions
 
 ## Acknowledgment
 This project is inspired by and customized from [this repository](https://github.com/kaymen99/langgraph-email-automation).

@@ -4,7 +4,7 @@ from src.graph import GraphCompiler
 from fastapi.middleware.cors import CORSMiddleware
 from langserve import add_routes
 from fastapi import FastAPI
-from langchain_core.runnables import RunnableLambda
+from langchain_core.runnables import RunnableGenerator
 
 load_dotenv()
 
@@ -23,7 +23,7 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-async def process_emails_streaming():
+async def process_emails_streaming(input_data: dict):
     """
     Yields state updates in real-time.
     """
@@ -39,10 +39,14 @@ async def process_emails_streaming():
             "error": f"Error: {str(e)}"
         }
 
-email_agent_streaming = RunnableLambda(process_emails_streaming)
+email_agent_streaming = RunnableGenerator(process_emails_streaming)
 
 # Create the Fast API route with streaming support
-add_routes(app, email_agent_streaming, path="/email", enable_feedback_endpoint=True, playground_type="default")
+add_routes(app, 
+           email_agent_streaming.with_types(input_type=dict), 
+           path="/email", 
+           enable_feedback_endpoint=True, 
+           playground_type="default")
 
 def main():
     # Start the API

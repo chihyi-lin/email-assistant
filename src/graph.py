@@ -41,7 +41,9 @@ class GraphCompiler():
                         "category": "",
                         "drafted_subject": "",
                         "drafted_body": "",
-                        "summarization": ""}
+                        "summarization": "",
+                        "error": "",
+                        "current_log": ""}
         
         # Stream the workflow execution
         for state in self.compiled_graph.stream(initial_state):
