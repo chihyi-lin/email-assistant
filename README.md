@@ -1,6 +1,6 @@
 # AI Email Assistant with LangGraph, FastAPI, and LangServe
 
-An intelligent personal email assistant that automatically fetch new emails, classifies emails, drafts responses, and summarizes newsletters using LangGraph workflows and LLM capabilities.
+An intelligent personal email assistant that automatically fetches new emails, classifies emails, drafts responses, and summarizes newsletters using LangGraph workflows and LLM capabilities.
 
 ## Features
 - 🔍 **Automatic Email Classification**: Categorizes emails into "response_required", "newsletter", "notification", "social", "spam", "others"
