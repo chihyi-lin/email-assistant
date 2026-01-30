@@ -2,6 +2,13 @@
 
 An intelligent personal email assistant that automatically fetch new emails, classifies emails, drafts responses, and summarizes newsletters using LangGraph workflows and LLM capabilities.
 
+## Features
+- 🔍 **Automatic Email Classification**: Categorizes emails into "response_required", "newsletter", "notification", "social", "spam", "others"
+- ✍️ **AI-Powered Response Drafting**: Generates professional email responses and saves them as Gmail drafts
+- 📰 **Newsletter Summarization**: Creates concise summaries of newsletter content
+- 🎯 **Real-time Workflow Tracking**: Monitor agent progress through each processing step
+- 🌐 **LangServe Playground UI**: Interactive web interface for testing and monitoring
+
 ## Agent Output Example
 ### UI Demo
 
@@ -10,20 +17,13 @@ https://github.com/user-attachments/assets/d9b41418-143a-4d12-a943-52cec46706e6
 ### Terminal Output
 <img width="673" height="467" alt="ex_terminal" src="https://github.com/user-attachments/assets/3b81a164-bf7d-4e37-9869-a78e3f7d2b67" />
 
-
-## Features
-- 🔍 **Automatic Email Classification**: Categorizes emails into "response_required", "newsletter", "notification", "social", "spam", "others"
-- ✍️ **AI-Powered Response Drafting**: Generates professional email responses and saves them as Gmail drafts
-- 📰 **Newsletter Summarization**: Creates concise summaries of newsletter content
-- 🎯 **Real-time Workflow Tracking**: Monitor agent progress through each processing step
-- 🌐 **LangServe Playground UI**: Interactive web interface for testing and monitoring
-
 ## Tech Stack
-- LangGraph: Orchestrates the AI agent workflows.
-- FastAPI: High-performance API backend.
-- LangServe: Provides a simple UI and deployment interface.
-- Groq API: Enables fast access to open-source LLMs.
-- Google Gmail API: Used to access emails and save drafts directly to Gmail.
+- **LangGraph**: Orchestrates the AI agent workflows.
+- **FastAPI**: High-performance API backend.
+- **LangServe**: Provides a simple UI and deployment interface.
+- **Groq API**: Enables fast access to open-source LLMs.
+- **Google Gmail API**: Used to access emails and save drafts directly to Gmail.
+
 ## Architecture
 
 ```
@@ -32,8 +32,7 @@ https://github.com/user-attachments/assets/d9b41418-143a-4d12-a943-52cec46706e6
 │                     (User Interface)                        │
 └──────────────────────┬──────────────────────────────────────┘
                        │ HTTP/WebSocket
-┌───────────<img width="673" height="467" alt="ex_terminal" src="https://github.com/user-attachments/assets/f50d1d48-8749-47dd-9b6f-763843744206" />
-───────────▼──────────────────────────────────────┐
+┌──────────────────────▼──────────────────────────────────────┐
 │                    FastAPI Backend                          │
 │                     (main.py)                               │
 └──────────────────────┬──────────────────────────────────────┘
@@ -60,6 +59,7 @@ https://github.com/user-attachments/assets/d9b41418-143a-4d12-a943-52cec46706e6
 │                  (utils.py)                                 │
 └─────────────────────────────────────────────────────────────┘
 ```
+
 ## How to Run
 ### Prerequisites
 - Python 3.12.12
@@ -68,7 +68,6 @@ https://github.com/user-attachments/assets/d9b41418-143a-4d12-a943-52cec46706e6
 
 ### Setup
 #### 1: Install Dependencies
-
 ```bash
 pip install -r requirements.txt
 ```
@@ -80,34 +79,34 @@ MY_EMAIL="your gmail"
 ```
 #### 3: Set up Gmail API Access
 
-1. **Go to Google Cloud Console**: https://console.cloud.google.com/
+1. Go to Google Cloud Console: https://console.cloud.google.com/
 
-2. **Create a new project** (or select existing)
+2. Create a new project (or select existing)
 
-3. **Enable Gmail API**:
+3. Enable Gmail API:
    - Go to "APIs & Services" > "Library"
    - Search for "Gmail API"
    - Click "Enable"
 
-4. **Create OAuth 2.0 Credentials**:
+4. Create OAuth 2.0 Credentials:
    - Go to "APIs & Services" > "Credentials"
    - Click "Create Credentials" > "OAuth client ID"
    - Application type: "Desktop app"
    - Name it "Gmail Assistant"
    - Download the credentials
 
-5. **Save credentials**:
+5. Save credentials:
    - Rename downloaded file to `credentials.json`
    - Place it in the project root directory
 
 ### Running the Application
-1. Start the FastAPI Server
+1. **Start the FastAPI Server**
 ```bash
 python main.py
 ```
 The server will start at: `http://0.0.0.0:8000/`
 
-2. Open your browser and navigate to LangServe Playground: `http://0.0.0.0:8000/email/playground`. Click "Start" and the workflow will start automatically.
+2. **Open your browser and navigate to LangServe Playground: `http://0.0.0.0:8000/email/playground`**. Click **"Start"** and the workflow will start automatically.
 
 -  Authenticate Google OAuth tokens when running the application for the first time:
    1. A windonw will pop up asking you to log in to your Google Account
