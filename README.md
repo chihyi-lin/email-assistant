@@ -4,12 +4,12 @@ An intelligent personal email assistant that automatically fetch new emails, cla
 
 ## Agent Output Example
 ### UI Demo
-<video src="[agent workflow demo](https://github.com/user-attachments/assets/fc679cf5-a551-40e4-bbff-666361d26170)" width="100%"controls>
 
-</video>
+https://github.com/user-attachments/assets/d9b41418-143a-4d12-a943-52cec46706e6
 
 ### Terminal Output
-<img width="673" height="467" alt="ex_terminal" src="https://github.com/user-attachments/assets/0b2bd531-b01a-4f4c-a3d9-6404ef0b5a7a" />
+<img width="673" height="467" alt="ex_terminal" src="https://github.com/user-attachments/assets/3b81a164-bf7d-4e37-9869-a78e3f7d2b67" />
+
 
 ## Features
 - 🔍 **Automatic Email Classification**: Categorizes emails into "response_required", "newsletter", "notification", "social", "spam", "others"
@@ -32,7 +32,8 @@ An intelligent personal email assistant that automatically fetch new emails, cla
 │                     (User Interface)                        │
 └──────────────────────┬──────────────────────────────────────┘
                        │ HTTP/WebSocket
-┌──────────────────────▼──────────────────────────────────────┐
+┌───────────<img width="673" height="467" alt="ex_terminal" src="https://github.com/user-attachments/assets/f50d1d48-8749-47dd-9b6f-763843744206" />
+───────────▼──────────────────────────────────────┐
 │                    FastAPI Backend                          │
 │                     (main.py)                               │
 └──────────────────────┬──────────────────────────────────────┘
