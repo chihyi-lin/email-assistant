@@ -5,6 +5,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 import re
 from bs4 import BeautifulSoup
@@ -27,13 +28,34 @@ class GmailTool:
             creds = Credentials.from_authorized_user_file('token.json', SCOPES)
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
+                try:
+                    print(f"Refreshing expired Gmail token...")
+                    creds.refresh(Request())
+                    print(f"Token refreshed successfully")
+                except Exception as e:
+                    print(f"Token refresh failed: {e}")
+                    print(f"Starting new authentication flow")
+                    creds = None
+
+            if not creds:
+                if not os.path.exists('credentials.json'):
+                    raise FileNotFoundError(
+                    "credentials.json not found. "
+                    "Download it from Google Cloud Console."
+                    )
                 flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
                 creds = flow.run_local_server(port=0)
+                print(f"Authentication successful")
             with open('token.json', 'w') as token:
                 token.write(creds.to_json())
-        return build('gmail', 'v1', credentials=creds)
+        
+        try:
+            service = build('gmail', 'v1', credentials=creds)
+            return service
+        except HttpError as error:
+            print(f"An error occured: {error}")
+            raise
+
     
     def fetch_recent_emails(self, max_results):
         try:
@@ -220,3 +242,7 @@ class GmailTool:
         except Exception as e:
             print(f"Failed to create draft: {e}")
             raise e
+        
+if __name__ == "__main__":
+    # Start new authentication flow if token is expired
+    GmailTool()
