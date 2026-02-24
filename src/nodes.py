@@ -10,7 +10,7 @@ class Nodes():
     def load_new_emails(self, state: GraphState) -> GraphState:
         print(Fore.BLUE + "Loading new emails with Gmail API...\n" + Style.RESET_ALL)
         msg = f"Loading new emails with Gmail API..."
-        unanswered_emails = self.gmail_tool.fetch_unanswered_emails(50)  # change the number of fetched emails here
+        unanswered_emails = self.gmail_tool.fetch_unanswered_emails(2)  # change the number of fetched emails here
         emails = []
         for email_dict in unanswered_emails:
             emails.append(Email(**email_dict))
@@ -34,8 +34,7 @@ class Nodes():
     def categorize_email(self, state: GraphState) -> GraphState:
         """Categorize an email using the agent."""
         print(Fore.BLUE + "Checking email category...\n" + Style.RESET_ALL)
-        # Truncate to roughly 2000 tokens (approx 1500 words) so it won't exceed token limit
-        email_content = state["current_email"].body[:5000]
+        email_content = truncate_content(state["current_email"].body)
         try:       
             result = self.agent.categorize_email.invoke({"email_content": email_content})
             print(Fore.GREEN + f"Category: {result.category}\n" + Style.RESET_ALL)
@@ -63,7 +62,7 @@ class Nodes():
     def summarize_email(self, state: GraphState) -> GraphState:
         """Summarize an email using the agent."""
         print(Fore.BLUE + "Summarizing the email...\n" + Style.RESET_ALL)
-        email_content = state["current_email"].body
+        email_content = truncate_content(state["current_email"].body)
         try:
             result = self.agent.summarize_email.invoke({"email_content": email_content})
             print(Fore.GREEN + f"Summary: \n{result.summarization}\n "+ Style.RESET_ALL)
@@ -119,3 +118,8 @@ class Nodes():
         msg = f"Processed email has been removed"
         return {"emails": state['emails'],
                 "current_log": msg}
+
+
+def truncate_content(msg: str):
+    # Truncate to roughly 2000 tokens (approx 1500 words) so it won't exceed token limit
+    return msg[:5000]
