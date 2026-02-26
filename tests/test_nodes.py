@@ -57,4 +57,3 @@ class TestCategorizeEmailNode:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-    # Quick test run: python3 -m pytest tests/test_nodes.py::TestCategorizeEmailNode -v
