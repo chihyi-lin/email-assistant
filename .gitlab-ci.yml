@@ -47,5 +47,5 @@ lint_code:
 run_unit_tests:
   stage: test
   script:
-    - pytest tests/ -m unit -v --tb=short --cov=src
+    - pytest tests/ -m unit -v --tb=short
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'  
