@@ -41,7 +41,7 @@ lint_code:
   stage: lint
   script:
     - pip install flake8
-    - flake8 main.py src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+    - flake8 app.py src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
   allow_failure: true  # Don't fail pipeline on lint warnings
 
 run_unit_tests:
@@ -49,3 +49,15 @@ run_unit_tests:
   script:
     - pytest tests/ -m unit -v --tb=short
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'  
+
+deploy:
+  stage: deploy
+  image: mcr.microsoft.com/azure-cli:latest
+  script:
+    # Login using the individual variables
+    - az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+    
+    # Deploy the code
+    - az webapp up --name Email-agent --resource-group email-agent_group --runtime "PYTHON:3.12"
+  only:
+    - main
