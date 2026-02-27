@@ -1,0 +1,39 @@
+image: python:3.12
+
+stages:
+  - lint     # Check code style (Fast)
+  - test     # Run unit tests (Medium)
+  - deploy   # Send to Azure/Cloud (Final)
+
+before_script:
+  - python -m pip install --upgrade pip
+  - pip install -r requirements.txt
+  
+  # File variables are automatically written to temp files
+  # Copy them to the expected locations
+  - |
+    if [ -f "$GMAIL_CREDENTIALS_JSON" ]; then
+      cp $GMAIL_CREDENTIALS_JSON credentials.json
+      echo "✅ credentials.json configured"
+    else
+      echo "credentials.json not found"
+    fi
+  
+  - |
+    if [ -f "$GMAIL_TOKEN_JSON" ]; then
+      cp $GMAIL_TOKEN_JSON token.json
+      echo "✅ token.json configured"
+    else
+      echo "token.json not found"
+    fi
+
+lint_code:
+  stage: lint
+  script:
+    - pip install flake8
+    - flake8 main.py src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+run_unit_tests:
+  stage: test
+  script:
+    - pytest -m unit
