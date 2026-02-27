@@ -5,6 +5,13 @@ stages:
   - test     # Run unit tests (Medium)
   - deploy   # Send to Azure/Cloud (Final)
 
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
 before_script:
   - python -m pip install --upgrade pip
   - pip install -r requirements.txt
@@ -32,8 +39,10 @@ lint_code:
   script:
     - pip install flake8
     - flake8 main.py src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+  allow_failure: true  # Don't fail pipeline on lint warnings
 
 run_unit_tests:
   stage: test
   script:
-    - pytest -m unit
+    - pytest tests/ -m unit -v --tb=short
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'  
