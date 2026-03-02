@@ -1,13 +1,13 @@
 # AI Email Assistant with LangGraph, FastAPI, and LangServe
 
-An intelligent personal email assistant that automatically fetches new emails, classifies emails, drafts responses, and summarizes newsletters using LangGraph workflows and LLM capabilities.
+An intelligent email assistant that automatically fetches new emails, classifies emails, drafts responses, and summarizes newsletters using LangGraph workflows and LLM capabilities, configured with CI/CD pipeline.
 
 ## Features
 - 🔍 **Automatic Email Classification**: Categorizes emails into "response_required", "newsletter", "notification", "social", "spam", "others"
-- ✍️ **AI-Powered Response Drafting**: Generates professional email responses and saves them as Gmail drafts
+- ✍️ **AI-Powered Response Drafting**: Generates professional email responses as Gmail drafts
 - 📰 **Newsletter Summarization**: Creates concise summaries of newsletter content
-- 🎯 **Real-time Workflow Tracking**: Monitor agent progress through each processing step
-- 🌐 **LangServe Playground UI**: Interactive web interface for testing and monitoring
+- 🌐 **LangServe Playground UI**: Monitoring and testing each agent step
+- 🚀 **CI/CD Pipeline**: GitLab CI/CD for automated testing and deployment to Azure
 
 ## Agent Output Example
 ### UI Demo
@@ -23,6 +23,7 @@ https://github.com/user-attachments/assets/d9b41418-143a-4d12-a943-52cec46706e6
 - **LangServe**: Provides a simple UI and deployment interface.
 - **Groq API**: Enables fast access to open-source LLMs.
 - **Google Gmail API**: Used to access emails and save drafts directly to Gmail.
+- **GitLab CI/CD**
 
 ## Architecture
 
@@ -34,7 +35,7 @@ https://github.com/user-attachments/assets/d9b41418-143a-4d12-a943-52cec46706e6
                        │ HTTP/WebSocket
 ┌──────────────────────▼──────────────────────────────────────┐
 │                    FastAPI Backend                          │
-│                     (main.py)                               │
+│                     (app.py)                                │
 └──────────────────────┬──────────────────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
@@ -65,6 +66,8 @@ https://github.com/user-attachments/assets/d9b41418-143a-4d12-a943-52cec46706e6
 - Python 3.12.12
 - Groq API key
 - Gmail API credentials
+- Azure account (for deployment)
+- GitLab account (for CI/CD)
 
 ### Setup
 #### 1: Install Dependencies
@@ -102,7 +105,7 @@ MY_EMAIL="your gmail"
 ### Running the Application
 1. **Start the FastAPI Server**
 ```bash
-python main.py
+python app.py
 ```
 The server will start at: `http://0.0.0.0:8000/`
 
@@ -114,5 +117,15 @@ The server will start at: `http://0.0.0.0:8000/`
    3. It shows "Gmail Assistant wants access to your Google Account" -> click "continue"
    4. `"token.json"` will be automatically saved in the root directory for future sessions
 
+## CI/CD Pipeline
+- **Stages**: Lint -> Test -> Build -> Deploy (manual trigger)
+- **Configuration**: Defined in `.gitlab-ci.yml`
+- **Setting up GitLab CI/CD Variables**:
+   - `GROQ_API_KEY` 
+   - `GMAIL_CREDENTIALS_JSON`
+   - `GMAIL_TOKEN_JSON` 
+   - `AZURE_CLIENT_ID`
+   - `AZURE_CLIENT_SECRET`
+   - `AZURE_TENANT_ID`
 ## Acknowledgment
 This project is inspired by and customized from [this repository](https://github.com/kaymen99/langgraph-email-automation).
