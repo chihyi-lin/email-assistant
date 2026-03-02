@@ -108,8 +108,15 @@ deploy:azure:
       az webapp deployment source config-zip \
         --resource-group $AZURE_RESOURCE_GROUP \
         --name $AZURE_WEBAPP_NAME \
-        --src deploy.zip
+        --src deploy.zip \
+        --timeout 600
     
+    - |
+      az webapp config set \
+        --resource-group $AZURE_RESOURCE_GROUP \
+        --name $AZURE_WEBAPP_NAME \
+        --startup-file "startup.sh"
+
     - |
       az webapp config appsettings set \
         --resource-group $AZURE_RESOURCE_GROUP \
@@ -118,7 +125,8 @@ deploy:azure:
           GROQ_API_KEY="$GROQ_API_KEY" \
           PYTHONUNBUFFERED=1 \
           ENVIRONMENT=production \
-          PORT=8000
+          SCM_DO_BUILD_DURING_DEPLOYMENT=true \
+          WEBSITES_ENABLE_APP_SERVICE_STORAGE=false
     
     - |
       az webapp restart \
