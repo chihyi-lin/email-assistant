@@ -3,11 +3,14 @@ image: python:3.12
 stages:
   - lint     # Check code style (Fast)
   - test     # Run unit tests (Medium)
+  - build
   - deploy   # Send to Azure/Cloud (Final)
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PYTHONPATH: "${CI_PROJECT_DIR}:${CI_PROJECT_DIR}/src"
+  AZURE_WEBAPP_NAME: "Email-agent"
+  AZURE_RESOURCE_GROUP: "email-agent_group"
 
 cache:
   paths:
@@ -50,14 +53,76 @@ run_unit_tests:
     - pytest tests/ -m unit -v --tb=short
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'  
 
-deploy:
-  stage: deploy
-  image: mcr.microsoft.com/azure-cli:latest
+build:package:
+  stage: build
   script:
-    # Login using the individual variables
-    - az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-    
-    # Deploy the code
-    - az webapp up --name Email-agent --resource-group email-agent_group --runtime "PYTHON:3.12"
+    - echo "Building deployment package..."
+    - mkdir -p deploy_package
+    - cp -r src/ deploy_package/
+    - cp app.py deploy_package/
+    - cp requirements.txt deploy_package/
+    - |
+      if [ -f "credentials.json" ]; then
+        cp credentials.json deploy_package/
+      fi
+    - |
+      if [ -f "token.json" ]; then
+        cp token.json deploy_package/
+      fi
+    - cd deploy_package && zip -r ../deploy.zip . && cd ..
+    - echo "Package created: deploy.zip"
+  artifacts:
+    paths:
+      - deploy.zip
+    expire_in: 1 day
   only:
     - main
+
+deploy:azure:
+  stage: deploy
+  image: python:3.12
+  before_script:
+    - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+    - az --version
+  script:
+    - echo "🚀 Deploying to Azure..."
+    - |
+      az login --service-principal \
+        -u $AZURE_CLIENT_ID \
+        -p $AZURE_CLIENT_SECRET \
+        --tenant $AZURE_TENANT_ID
+    
+    - az account show
+    
+    - |
+      az webapp deployment source config-zip \
+        --resource-group $AZURE_RESOURCE_GROUP \
+        --name $AZURE_WEBAPP_NAME \
+        --src deploy.zip
+    
+    - |
+      az webapp config appsettings set \
+        --resource-group $AZURE_RESOURCE_GROUP \
+        --name $AZURE_WEBAPP_NAME \
+        --settings \
+          PYTHONUNBUFFERED=1 \
+          ENVIRONMENT=production
+    
+    - |
+      az webapp restart \
+        --resource-group $AZURE_RESOURCE_GROUP \
+        --name $AZURE_WEBAPP_NAME
+    
+    - echo "✅ Deployed to https://${AZURE_WEBAPP_NAME}.azurewebsites.net"
+  
+  environment:
+    name: production
+    url: https://$AZURE_WEBAPP_NAME.azurewebsites.net
+  
+  dependencies:
+    - build:package
+  
+  only:
+    - main
+  
+  when: manual
