@@ -16,3 +16,6 @@ uvicorn
 langserve
 sse-starlette
 pytest
+
+# Deployment
+gunicorn
