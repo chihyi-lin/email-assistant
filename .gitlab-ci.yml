@@ -58,6 +58,7 @@ build:package:
   script:
     - echo "Building deployment package..."
     - mkdir -p deploy_package
+    - apt-get update && apt-get install -y zip
     - cp -r src/ deploy_package/
     - cp app.py deploy_package/
     - cp requirements.txt deploy_package/
